@@ -75,30 +75,40 @@
 </head>
 
 <body>
-    <div class="container-fluid mt-4">
-        <div class="row header">
-            <div class="col-md-4">
-                <select class="form-select" id="inlineFormSelectPref">
-                    <option selected>Choose Language...</option>
-                    <option value="Java">Java</option>
-                    <option value="Cpp">Cpp</option>
-                    <option value="Python">Python</option>
-                </select>
+    <div class="container-fluid mt-3">
+        <div class="row">
+            <!-- Code Editor on the Left -->
+            <div class="col-md-7">
+                <div class="d-flex justify-content-between mb-2 bg-dark rounded p-2">
+                    <div class="col-12 w-25">
+                        <select class="form-select" id="inlineFormSelectPref">
+                            <option selected>Choose...</option>
+                            <option value="Java">Java</option>
+                            <option value="Cpp">Cpp</option>
+                            <option value="Python">Python</option>
+                        </select>
+                    </div>
+                    <div>
+                        <button type="button" class="btn btn-success">Coding Sprint</button>
+                        <button type="button" id="run" class="btn btn-success"><i class="bi bi-play-fill"></i></button>
+                    </div>
+                </div>
+                <textarea id="editor" class="form-control" aria-label="Code Editor"></textarea>
             </div>
-            <div class="col-md-8 text-end">
-                <button type="button" class="btn btn-custom">Coding Sprint</button>
-                <button type="button" id="run" class="btn btn-custom"><i class="bi bi-play-fill"></i> Run</button>
-            </div>
-        </div>
-        <div class="row mt-4">
-            <div class="col-md-8">
-                <textarea id="editor" class="form-control"></textarea>
-            </div>
-            <div class="col-md-4 side-panel">
-                <label for="Input" class="form-label">Input</label>
-                <textarea id="input" class="form-control"></textarea>
-                <label for="Output" class="form-label">Output</label>
-                <textarea id="output" class="form-control"></textarea>
+            <!-- Input, Output, and Time on the Right -->
+            <div class="col-md-5 d-flex flex-column">
+                <div class="mb-3">
+                    <label for="input" class="text-light">Input</label>
+                    <textarea id="input" class="form-control" style="height: 200px;" aria-label="Input"></textarea>
+                </div>
+                <div class="mb-3">
+                    <label for="output" class="text-light">Output</label>
+                    <textarea id="output" class="form-control" style="height: 200px;" aria-label="Output"></textarea>
+                </div>
+                <div>
+                    <label for="executionTime" class="text-light">Execution Time</label>
+                    <textarea id="executionTime" class="form-control" style="height: 100px;" aria-label="Execution Time" readonly></textarea>
+                </div>
             </div>
         </div>
     </div>
@@ -111,17 +121,22 @@
             autoCloseBrackets: true,
         });
 
+        var run = document.getElementById("run");
         var input = document.getElementById("input");
         var output = document.getElementById("output");
-        var run = document.getElementById("run");
+        var executionTime = document.getElementById("executionTime");
         var option = document.getElementById("inlineFormSelectPref");
+
+        editor.setSize(null, "500px");  // Set height for the code editor
 
         option.addEventListener("change", function () {
             if (option.value == "Java") {
                 editor.setOption("mode", "text/x-java");
-            } else if (option.value == "Python") {
+            }
+            else if (option.value == "Python") {
                 editor.setOption("mode", "text/x-python");
-            } else {
+            }
+            else {
                 editor.setOption("mode", "text/x-c++src");
             }
         });
@@ -132,6 +147,7 @@
                 input: input.value,
                 lang: option.value
             };
+            var startTime = performance.now();
             var oData = await fetch("http://localhost:8000/compile", {
                 method: "POST",
                 headers: {
@@ -140,10 +156,10 @@
                 body: JSON.stringify(code)
             });
             var d = await oData.json();
+            var endTime = performance.now();
             output.value = d.output;
+            executionTime.value = (endTime - startTime).toFixed(2) + " ms";
         });
-
-        editor.setSize("100%", "500px");
     </script>
 </body>
 
