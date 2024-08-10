@@ -24,39 +24,63 @@ app.post("/compile", function (req, res) {
     const code = req.body.code;
     const input = req.body.input;
     const lang = req.body.lang;
-
-    const startTime = Date.now(); // Start time
-
-    const sendResponse = (data) => {
-        const endTime = Date.now(); // End time
-        const executionTime = endTime - startTime;
-        res.send({
-            output: data.output ? data.output : "error",
-            executionTime: executionTime + " ms"
-        });
-    };
-
     try {
         if (lang === "Cpp") {
             const envData = { OS: "windows", cmd: "g++", options: { timeout: 10000 } };
             if (!input) {
-                compiler.compileCPP(envData, code, sendResponse);
+                compiler.compileCPP(envData, code, function (data) {
+                    if (data.error) {
+                        res.send({ output: data.error });
+                    } else {
+                        res.send(data);
+                    }
+                });
             } else {
-                compiler.compileCPPWithInput(envData, code, input, sendResponse);
+                compiler.compileCPPWithInput(envData, code, input, function (data) {
+                    if (data.error) {
+                        res.send({ output: data.error });
+                    } else {
+                        res.send(data);
+                    }
+                });
             }
         } else if (lang === "Java") {
             const envData = { OS: "windows" };
             if (!input) {
-                compiler.compileJava(envData, code, sendResponse);
+                compiler.compileJava(envData, code, function (data) {
+                    if (data.error) {
+                        res.send({ output: data.error });
+                    } else {
+                        res.send(data);
+                    }
+                });
             } else {
-                compiler.compileJavaWithInput(envData, code, input, sendResponse);
+                compiler.compileJavaWithInput(envData, code, input, function (data) {
+                    if (data.error) {
+                        res.send({ output: data.error });
+                    } else {
+                        res.send(data);
+                    }
+                });
             }
         } else if (lang === "Python") {
             const envData = { OS: "windows" };
             if (!input) {
-                compiler.compilePython(envData, code, sendResponse);
+                compiler.compilePython(envData, code, function (data) {
+                    if (data.error) {
+                        res.send({ output: data.error });
+                    } else {
+                        res.send(data);
+                    }
+                });
             } else {
-                compiler.compilePythonWithInput(envData, code, input, sendResponse);
+                compiler.compilePythonWithInput(envData, code, input, function (data) {
+                    if (data.error) {
+                        res.send({ output: data.error });
+                    } else {
+                        res.send(data);
+                    }
+                });
             }
         }
     } catch (e) {
