@@ -1,43 +1,43 @@
 const express = require("express");
-const path = require("path");
 const app = express();
 const bodyP = require("body-parser");
 const compiler = require("compilex");
+
+// Initialize compiler with options
 const options = { stats: true };
 compiler.init(options);
 
+// Middleware
 app.use(bodyP.json());
+app.use("/codemirror-5.65.17", express.static("C:/Users/ameys/OneDrive/Desktop/Git/new project/codemirror-5.65.17"));
 
-// Use relative path for serving static files
-app.use("/codemirror-5.65.9", express.static(path.join(__dirname, "codemirror-5.65.9")));
-
+// Serve the main HTML file
 app.get("/", function (req, res) {
     compiler.flush(function () {
-        console.log("deleted");
+        console.log("Previous compilation files deleted");
     });
-    // Use path.join to correctly resolve the file path
-    res.sendFile(path.join(__dirname, "index.html"));
+    res.sendFile("C:/Users/ameys/OneDrive/Desktop/Git/new project/index.html");
 });
 
+// Handle code compilation requests
 app.post("/compile", function (req, res) {
-    var code = req.body.code;
-    var input = req.body.input;
-    var lang = req.body.lang;
+    const code = req.body.code;
+    const input = req.body.input;
+    const lang = req.body.lang;
     try {
-        if (lang == "Cpp") {
+        if (lang === "Cpp") {
+            const envData = { OS: "windows", cmd: "g++", options: { timeout: 10000 } };
             if (!input) {
-                var envData = { OS: "windows", cmd: "g++", options: { timeout: 10000 } }; 
                 compiler.compileCPP(envData, code, function (data) {
                     res.send(data.output ? data : { output: "error" });
                 });
             } else {
-                var envData = { OS: "windows", cmd: "g++", options: { timeout: 10000 } }; 
                 compiler.compileCPPWithInput(envData, code, input, function (data) {
                     res.send(data.output ? data : { output: "error" });
                 });
             }
-        } else if (lang == "Java") {
-            var envData = { OS: "windows" };
+        } else if (lang === "Java") {
+            const envData = { OS: "windows" };
             if (!input) {
                 compiler.compileJava(envData, code, function (data) {
                     res.send(data.output ? data : { output: "error" });
@@ -47,8 +47,8 @@ app.post("/compile", function (req, res) {
                     res.send(data.output ? data : { output: "error" });
                 });
             }
-        } else if (lang == "Python") {
-            var envData = { OS: "windows" };
+        } else if (lang === "Python") {
+            const envData = { OS: "windows" };
             if (!input) {
                 compiler.compilePython(envData, code, function (data) {
                     res.send(data.output ? data : { output: "error" });
@@ -60,10 +60,12 @@ app.post("/compile", function (req, res) {
             }
         }
     } catch (e) {
-        console.log("error", e);
+        console.log("Compilation error:", e);
+        res.send({ output: "Internal Server Error" });
     }
 });
 
+// Start the server
 app.listen(8000, () => {
-    console.log("Server is running on http://localhost:8000");
+    console.log("Server running on http://localhost:8000");
 });
